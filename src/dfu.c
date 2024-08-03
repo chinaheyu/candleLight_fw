@@ -64,6 +64,12 @@ void __initialize_hardware_early(void)
 			case 0x467:
 				dfu_jump_to_bootloader(SYSMEM_STM32G0B1);
 				break;
+
+#ifdef BOARD_SCUT_candleLightFD
+			default:
+				dfu_jump_to_bootloader(0x1FFF0000);
+				break;
+#endif
 		}
 	}
 

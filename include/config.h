@@ -40,7 +40,11 @@ THE SOFTWARE.
 
 #include "version.h"
 
+#ifdef BOARD_SCUT_candleLightFD
+#define CAN_QUEUE_SIZE				 (256 * NUM_CAN_CHANNEL)
+#else
 #define CAN_QUEUE_SIZE				 (64 * NUM_CAN_CHANNEL)
+#endif
 
 #define USBD_VID					 0x1d50
 #define USBD_PID_FS					 0x606f
@@ -400,6 +404,18 @@ THE SOFTWARE.
 	#define CAN_CLOCK_SPEED			 80000000
 	#define NUM_CAN_CHANNEL			 1
 	#define CONFIG_CANFD			 1
+
+#elif defined(BOARD_SCUT_candleLightFD)
+	#define USBD_PRODUCT_STRING_FS	 (uint8_t*) "SCUT_candleLightFD gs_usb"
+	#define USBD_MANUFACTURER_STRING (uint8_t*) "SCUT"
+	#define DFU_INTERFACE_STRING_FS	 (uint8_t*) "SCUT_candleLightFD firmware upgrade interface"
+
+	#define TIM2_CLOCK_SPEED		 120000000
+
+	#define CAN_CLOCK_SPEED			 120000000
+	#define NUM_CAN_CHANNEL			 1
+	#define CONFIG_CANFD			 1
+	#define TERM_Pin				 1
 
 #else
 	#error please define BOARD

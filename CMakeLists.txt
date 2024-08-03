@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 project(candleLightFirmware C ASM)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 add_compile_options(
 	--specs=nano.specs
 	--specs=nosys.specs
@@ -212,6 +210,15 @@ populate_ldscript(CPU_FAMILY STM32G431X8
 	HEAP_SIZE 1k
 )
 
+populate_ldscript(CPU_FAMILY STM32G431XB
+	FLASH_START 0x08000000
+	FLASH_SIZE 128k
+	RAM_START 0x20000000
+	RAM_SIZE 32k
+	STACK_SIZE 2k
+	HEAP_SIZE 1k
+)
+
 ######### commands for adding each target have a lot in common: make helper func.
 # Split into two categories, F042-based and F072-based.
 
@@ -271,14 +278,31 @@ function(add_g0b1_target TGTNAME)
 endfunction()
 
 function(add_g431_target TGTNAME)
-	add_target_common(${TGTNAME} STM32G431X8)
-	target_compile_definitions(${TGTNAME}_fw PRIVATE BOARD_${TGTNAME} STM32G4)
-	target_compile_options(${TGTNAME}_fw BEFORE PRIVATE ${CPUFLAGS_G4})
-	target_sources(${TGTNAME}_fw PRIVATE "src/boards/g431-${TGTNAME}.c")
-	target_sources(${TGTNAME}_fw PRIVATE "src/can/m_can.c")
-	target_sources(${TGTNAME}_fw PRIVATE "src/device/device_g4.c")
-	target_link_options(${TGTNAME}_fw BEFORE PRIVATE ${CPUFLAGS_G4})
-	target_link_libraries(${TGTNAME}_fw PRIVATE STM32_HAL_STM32G431x8 STM32_USB_Device_Library_STM32G431x8)
+	if(TGTNAME STREQUAL "SCUT_candleLightFD")
+		add_target_common(${TGTNAME} STM32G431XB)
+		target_compile_definitions(${TGTNAME}_fw PRIVATE BOARD_${TGTNAME} STM32G4)
+		target_compile_options(${TGTNAME}_fw BEFORE PRIVATE ${CPUFLAGS_G4})
+		target_sources(${TGTNAME}_fw PRIVATE "src/boards/g431-${TGTNAME}.c")
+		target_sources(${TGTNAME}_fw PRIVATE "src/can/m_can.c")
+		target_sources(${TGTNAME}_fw PRIVATE "src/device/device_g4.c")
+		target_link_options(${TGTNAME}_fw BEFORE PRIVATE ${CPUFLAGS_G4})
+		target_link_libraries(${TGTNAME}_fw PRIVATE STM32_HAL_STM32G431x8 STM32_USB_Device_Library_STM32G431x8)
+
+		# Set HSE Value
+		target_compile_definitions(STM32_HAL_STM32G431x8 PRIVATE "HSE_VALUE=(25000000UL)")
+
+		# export compile_commands.json for SCUT_candleLightFD
+		set_target_properties(${TGTNAME}_fw PROPERTIES EXPORT_COMPILE_COMMANDS ON)
+	else()
+		add_target_common(${TGTNAME} STM32G431X8)
+		target_compile_definitions(${TGTNAME}_fw PRIVATE BOARD_${TGTNAME} STM32G4)
+		target_compile_options(${TGTNAME}_fw BEFORE PRIVATE ${CPUFLAGS_G4})
+		target_sources(${TGTNAME}_fw PRIVATE "src/boards/g431-${TGTNAME}.c")
+		target_sources(${TGTNAME}_fw PRIVATE "src/can/m_can.c")
+		target_sources(${TGTNAME}_fw PRIVATE "src/device/device_g4.c")
+		target_link_options(${TGTNAME}_fw BEFORE PRIVATE ${CPUFLAGS_G4})
+		target_link_libraries(${TGTNAME}_fw PRIVATE STM32_HAL_STM32G431x8 STM32_USB_Device_Library_STM32G431x8)
+	endif(TGTNAME STREQUAL "SCUT_candleLightFD")
 endfunction()
 
 ########## generate list of targets.
@@ -287,7 +311,7 @@ set(TGTF042_LIST "cantact" "canalyze" "canable" "usb2can" "cannette")
 set(TGTF072_LIST "candleLight" "CANable_MKS" "CONVERTDEVICE_xCAN" "DSD_TECH_SH_C30A" "FYSETC_UCAN")
 set(TGTF407_LIST "STM32F4_DevBoard")
 set(TGTG0B1_LIST "budgetcan" "CONVERTDEVICE_xCANFD" "nucleo_g0b1re" "candleLightFD")
-set(TGTG431_LIST "CANable2_MKS")
+set(TGTG431_LIST "CANable2_MKS" "SCUT_candleLightFD")
 
 foreach (TGTNAME IN LISTS TGTF042_LIST)
 	option(BUILD_${TGTNAME} "Build firmware for \"${TGTNAME}\" (default=yes)" ON)

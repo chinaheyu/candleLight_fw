@@ -42,6 +42,9 @@ const struct gs_device_bt_const CAN_btconst = {
 #ifdef TERM_Pin
 		| GS_CAN_FEATURE_TERMINATION
 #endif
+#ifdef BOARD_SCUT_candleLightFD
+		| GS_CAN_FEATURE_ONE_SHOT
+#endif
 	,
 	.fclk_can = CAN_CLOCK_SPEED,
 	.tseg1_min = 1,

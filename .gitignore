@@ -3,6 +3,7 @@
 /.vscode/
 /Debug/
 /build/
+/bin/
 *.asmo
 *.bin
 *.d
