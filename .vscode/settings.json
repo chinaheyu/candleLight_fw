@@ -1,0 +1,10 @@
+{
+    "C_Cpp.intelliSenseEngine": "disabled",
+    "clangd.onConfigChanged": "restart",
+    "C_Cpp.clang_format_fallbackStyle": "Google",
+    "clangd.arguments": [
+        "-header-insertion=never",
+        "--query-driver=/usr/bin/arm-none-eabi-gcc"
+    ],
+    "files.eol": "\n",
+}
