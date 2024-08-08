@@ -510,6 +510,13 @@ static uint8_t USBD_GS_CAN_EP0_RxReady(USBD_HandleTypeDef *pdev) {
 			if (mode->mode == GS_CAN_MODE_RESET) {
 				can_disable(channel);
 				led_set_mode(&channel->leds, LED_MODE_OFF);
+#ifdef BOARD_SCUT_candleLightFD
+				// Clear list_from_host and list_echo when resetting the channel
+				bool was_irq_enabled = disable_irq();
+				list_splice_tail_init(&channel->list_from_host, &hcan->list_frame_pool);
+				list_splice_tail_init(&channel->list_echo, &hcan->list_frame_pool);
+				restore_irq(was_irq_enabled);
+#endif
 			} else if (mode->mode == GS_CAN_MODE_START) {
 				hcan->timestamps_enabled = (mode->flags & GS_CAN_MODE_HW_TIMESTAMP) != 0;
 				hcan->pad_pkts_to_max_pkt_size = (mode->flags & GS_CAN_MODE_PAD_PKTS_TO_MAX_PKT_SIZE) != 0;
