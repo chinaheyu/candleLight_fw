@@ -249,7 +249,12 @@ bool can_send(can_data_t *channel, struct gs_host_frame *frame)
 		// G4 driver accepts the length as is and shifts internally where required
 		.DataLength = frame->can_dlc,
 		#endif
+#ifdef BOARD_SCUT_candleLightFD
+		.TxEventFifoControl = FDCAN_STORE_TX_EVENTS,
+		.MessageMarker = frame->reserved,
+#else
 		.TxEventFifoControl = FDCAN_NO_TX_EVENTS,
+#endif
 	};
 
 	TxHeader.TxFrameType =

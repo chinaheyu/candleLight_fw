@@ -93,6 +93,10 @@ int main(void)
 
 		INIT_LIST_HEAD(&channel->list_from_host);
 
+#ifdef BOARD_SCUT_candleLightFD
+		INIT_LIST_HEAD(&channel->list_echo);
+#endif
+
 		led_init(&channel->leds,
 				 led_config[LED_RX].port, led_config[LED_RX].pin, led_config[LED_RX].active_high,
 				 led_config[LED_TX].port, led_config[LED_TX].pin, led_config[LED_TX].active_high);
@@ -122,6 +126,9 @@ int main(void)
 		for (unsigned int i = 0; i < ARRAY_SIZE(hGS_CAN.channels); i++) {
 			can_data_t *channel = &hGS_CAN.channels[i];
 
+#ifdef BOARD_SCUT_candleLightFD
+			CAN_EchoFrame(&hGS_CAN, channel);
+#endif
 			CAN_SendFrame(&hGS_CAN, channel);
 			CAN_ReceiveFrame(&hGS_CAN, channel);
 			CAN_HandleError(&hGS_CAN, channel);

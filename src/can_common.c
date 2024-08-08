@@ -50,8 +50,51 @@ int can_check_bittiming(const struct can_bittiming_const *btc,
 	return 0;
 }
 
+#ifdef BOARD_SCUT_candleLightFD
+void CAN_EchoFrame(USBD_GS_CAN_HandleTypeDef *hcan, can_data_t *channel)
+{
+	bool was_irq_enabled;
+	struct gs_host_frame_object *frame_object;
+	struct gs_host_frame *frame = NULL;
+	struct list_head *p, *n;
+	FDCAN_TxEventFifoTypeDef tx_event;
+
+	if (HAL_FDCAN_GetTxEvent(&channel->channel, &tx_event) == HAL_OK) {
+		was_irq_enabled = disable_irq();
+		list_for_each_safe(p, n, &channel->list_echo) {
+			frame_object = list_entry(p, struct gs_host_frame_object, list);
+			list_del(p);
+			if (frame_object->frame.reserved == tx_event.MessageMarker) {
+				frame = &frame_object->frame;
+				break;
+			} else {
+				list_add_tail(&frame_object->list, &hcan->list_frame_pool);
+			}
+		}
+		restore_irq(was_irq_enabled);
+
+		if (!frame)
+			return;
+
+		frame->reserved = 0;
+
+		if (IS_ENABLED(CONFIG_CANFD) && frame->flags & GS_CAN_FLAG_FD)
+			frame->canfd_ts->timestamp_us = timer_get();
+		else
+			frame->classic_can_ts->timestamp_us = timer_get();
+
+		list_add_tail_locked(&frame_object->list, &hcan->list_to_host);
+		led_indicate_trx(&channel->leds, LED_TX);
+	}
+}
+#endif
+
 void CAN_SendFrame(USBD_GS_CAN_HandleTypeDef *hcan, can_data_t *channel)
 {
+#ifdef BOARD_SCUT_candleLightFD
+	UNUSED(hcan);
+#endif
+
 	struct gs_host_frame_object *frame_object;
 
 	bool was_irq_enabled = disable_irq();
@@ -68,12 +111,25 @@ void CAN_SendFrame(USBD_GS_CAN_HandleTypeDef *hcan, can_data_t *channel)
 
 	struct gs_host_frame *frame = &frame_object->frame;
 
+#ifdef BOARD_SCUT_candleLightFD
+	frame->reserved = channel->echo_marker;
+#endif
+
 	if (!can_send(channel, frame)) {
 		list_add_locked(&frame_object->list, &channel->list_from_host);
 		return;
 	}
 
+#ifdef BOARD_SCUT_candleLightFD
+	channel->echo_marker++;
+#endif
+
 	// Echo sent frame back to host
+#ifdef BOARD_SCUT_candleLightFD
+	if (channel->channel.Init.Mode != FDCAN_MODE_BUS_MONITORING) {
+		list_add_tail_locked(&frame_object->list, &channel->list_echo);
+	}
+#else
 	frame->reserved = 0x0;
 	if (IS_ENABLED(CONFIG_CANFD) && frame->flags & GS_CAN_FLAG_FD)
 		frame->canfd_ts->timestamp_us = timer_get();
@@ -83,6 +139,7 @@ void CAN_SendFrame(USBD_GS_CAN_HandleTypeDef *hcan, can_data_t *channel)
 	list_add_tail_locked(&frame_object->list, &hcan->list_to_host);
 
 	led_indicate_trx(&channel->leds, LED_TX);
+#endif
 }
 
 void CAN_ReceiveFrame(USBD_GS_CAN_HandleTypeDef *hcan, can_data_t *channel)

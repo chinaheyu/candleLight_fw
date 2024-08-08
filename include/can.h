@@ -42,6 +42,12 @@ typedef struct {
 	CAN_TypeDef *instance;
 #endif
 	struct list_head list_from_host;
+
+#ifdef BOARD_SCUT_candleLightFD
+	struct list_head list_echo;
+	uint8_t echo_marker;
+#endif
+
 	led_data_t leds;
 	uint32_t last_err;
 	uint16_t brp;
