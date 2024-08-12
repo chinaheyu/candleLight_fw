@@ -30,7 +30,11 @@ THE SOFTWARE.
 #include <stdbool.h>
 #include <cmsis_device.h>
 
+#ifdef BOARD_SCUT_candleLightFD
+void hex32(char *out, uint32_t val, uint8_t len);
+#else
 void hex32(char *out, uint32_t val);
+#endif
 
 // ARM's
 // "Application Note 321 ARM Cortex-M Programming Guide to Memory Barrier Instructions"

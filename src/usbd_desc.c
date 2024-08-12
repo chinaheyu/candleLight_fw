@@ -115,13 +115,28 @@ uint8_t *USBD_FS_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *le
 
 uint8_t *USBD_FS_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-	char buf[25];
-
 	UNUSED(speed);
+
+#ifdef BOARD_SCUT_candleLightFD
+	char buf[13];
+	uint32_t deviceserial0;
+	uint32_t deviceserial1;
+	uint32_t deviceserial2;
+
+	deviceserial0 = *(uint32_t *)(UID_BASE + 0);
+	deviceserial1 = *(uint32_t *)(UID_BASE + 4);
+	deviceserial2 = *(uint32_t *)(UID_BASE + 8);
+	deviceserial0 += deviceserial2;
+
+	hex32(buf, deviceserial0, 8);
+	hex32(buf + 8, deviceserial1, 4);
+#else
+	char buf[25];
 
 	hex32(buf,		*(uint32_t*)(UID_BASE    ));
 	hex32(buf +  8, *(uint32_t*)(UID_BASE + 4));
 	hex32(buf + 16, *(uint32_t*)(UID_BASE + 8));
+#endif
 
 	USBD_GetString((uint8_t*)buf, USBD_DescBuf, length);
 	return USBD_DescBuf;
