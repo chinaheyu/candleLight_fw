@@ -515,6 +515,15 @@ static uint8_t USBD_GS_CAN_EP0_RxReady(USBD_HandleTypeDef *pdev) {
 				bool was_irq_enabled = disable_irq();
 				list_splice_tail_init(&channel->list_from_host, &hcan->list_frame_pool);
 				list_splice_tail_init(&channel->list_echo, &hcan->list_frame_pool);
+
+				// Clear unsend frames in list_to_host
+				struct gs_host_frame_object *frame_obj, *tmp;
+				list_for_each_entry_safe(frame_obj, tmp, &hcan->list_to_host, list) {
+					if (frame_obj->frame.channel == channel->nr) {
+						list_del(&frame_obj->list);
+						list_add_tail(&frame_obj->list, &hcan->list_frame_pool);
+					}
+				}
 				restore_irq(was_irq_enabled);
 #endif
 			} else if (mode->mode == GS_CAN_MODE_START) {
