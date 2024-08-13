@@ -259,3 +259,11 @@ add_library(STM32_HAL_STM32G431x8 STATIC ${STM32G4_SOURCES})
     target_include_directories(STM32_HAL_STM32G431x8 PUBLIC ${INCLUDE_DIRS} include/stm32g4xx)
     target_compile_options(STM32_HAL_STM32G431x8 PRIVATE ${CPUFLAGS_G4} -Wno-unused-parameter)
     target_compile_definitions(STM32_HAL_STM32G431x8 PUBLIC STM32G431xx HAL_TARGET_PREFIX=stm32g431xx)
+
+add_library(STM32_HAL_SCUT_candleLightFD STATIC ${STM32G4_SOURCES})
+    target_include_directories(STM32_HAL_SCUT_candleLightFD PUBLIC ${INCLUDE_DIRS} include/stm32g4xx)
+    target_compile_options(STM32_HAL_SCUT_candleLightFD PRIVATE ${CPUFLAGS_G4} -Wno-unused-parameter)
+    target_compile_definitions(STM32_HAL_SCUT_candleLightFD PUBLIC STM32G431xx HAL_TARGET_PREFIX=stm32g431xx)
+
+    # Set HSE Value for SCUT candleLightFD
+    target_compile_definitions(STM32_HAL_SCUT_candleLightFD PRIVATE "HSE_VALUE=(25000000UL)")

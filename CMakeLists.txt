@@ -286,10 +286,7 @@ function(add_g431_target TGTNAME)
 		target_sources(${TGTNAME}_fw PRIVATE "src/can/m_can.c")
 		target_sources(${TGTNAME}_fw PRIVATE "src/device/device_g4.c")
 		target_link_options(${TGTNAME}_fw BEFORE PRIVATE ${CPUFLAGS_G4})
-		target_link_libraries(${TGTNAME}_fw PRIVATE STM32_HAL_STM32G431x8 STM32_USB_Device_Library_STM32G431x8)
-
-		# Set HSE Value
-		target_compile_definitions(STM32_HAL_STM32G431x8 PRIVATE "HSE_VALUE=(25000000UL)")
+		target_link_libraries(${TGTNAME}_fw PRIVATE STM32_HAL_SCUT_candleLightFD STM32_USB_Device_Library_SCUT_candleLightFD)
 
 		# export compile_commands.json for SCUT_candleLightFD
 		set_target_properties(${TGTNAME}_fw PROPERTIES EXPORT_COMPILE_COMMANDS ON)

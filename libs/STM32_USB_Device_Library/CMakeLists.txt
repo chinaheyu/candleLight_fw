@@ -39,3 +39,8 @@ add_library(STM32_USB_Device_Library_STM32G431x8 STATIC ${SOURCES})
     target_include_directories(STM32_USB_Device_Library_STM32G431x8 PUBLIC ${INCLUDE_DIRS})
     target_compile_options(STM32_USB_Device_Library_STM32G431x8 PRIVATE ${CPUFLAGS_G4} -Wno-unused-parameter -DSTM32G4)
     target_link_libraries(STM32_USB_Device_Library_STM32G431x8 PRIVATE STM32_HAL_STM32G431x8)
+
+add_library(STM32_USB_Device_Library_SCUT_candleLightFD STATIC ${SOURCES})
+    target_include_directories(STM32_USB_Device_Library_SCUT_candleLightFD PUBLIC ${INCLUDE_DIRS})
+    target_compile_options(STM32_USB_Device_Library_SCUT_candleLightFD PRIVATE ${CPUFLAGS_G4} -Wno-unused-parameter -DSTM32G4)
+    target_link_libraries(STM32_USB_Device_Library_SCUT_candleLightFD PRIVATE STM32_HAL_SCUT_candleLightFD)
