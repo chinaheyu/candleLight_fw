@@ -406,9 +406,9 @@ THE SOFTWARE.
 	#define CONFIG_CANFD			 1
 
 #elif defined(BOARD_SCUT_candleLightFD)
-	#define USBD_PRODUCT_STRING_FS	 (uint8_t*) "SCUT_candleLightFD gs_usb"
-	#define USBD_MANUFACTURER_STRING (uint8_t*) "SCUT"
-	#define DFU_INTERFACE_STRING_FS	 (uint8_t*) "SCUT_candleLightFD firmware upgrade interface"
+	#define USBD_PRODUCT_STRING_FS	 (uint8_t*) "SCUT_candleLightFD"
+	#define USBD_MANUFACTURER_STRING (uint8_t*) "Bionic Intelligent Robot (BIR) Lab"
+	#define DFU_INTERFACE_STRING_FS	 (uint8_t*) "firmware upgrade interface"
 
 	#define TIM2_CLOCK_SPEED		 120000000
 
