@@ -72,7 +72,7 @@ static const uint8_t USBD_GS_CAN_CfgDesc[USB_CAN_CONFIG_DESC_SIZ] =
 	0xFF,                             /* bInterfaceClass: Vendor Specific*/
 	0xFF,                             /* bInterfaceSubClass: Vendor Specific */
 	0xFF,                             /* bInterfaceProtocol: Vendor Specific */
-	0x00,                             /* iInterface */
+	USBD_IDX_INTERFACE_STR,                             /* iInterface */
 	/*---------------------------------------------------------------------------*/
 
 	/*---------------------------------------------------------------------------*/
