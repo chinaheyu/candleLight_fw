@@ -44,3 +44,6 @@ add_library(STM32_USB_Device_Library_SCUT_candleLightFD STATIC ${SOURCES})
     target_include_directories(STM32_USB_Device_Library_SCUT_candleLightFD PUBLIC ${INCLUDE_DIRS})
     target_compile_options(STM32_USB_Device_Library_SCUT_candleLightFD PRIVATE ${CPUFLAGS_G4} -Wno-unused-parameter -DSTM32G4)
     target_link_libraries(STM32_USB_Device_Library_SCUT_candleLightFD PRIVATE STM32_HAL_SCUT_candleLightFD)
+
+    # Set USBD_MAX_NUM_INTERFACES for SCUT candleLightFD
+    target_compile_definitions(STM32_USB_Device_Library_SCUT_candleLightFD PRIVATE "USBD_MAX_NUM_INTERFACES=3")

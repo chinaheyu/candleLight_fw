@@ -50,7 +50,14 @@ THE SOFTWARE.
 #else
 #define CAN_DATA_MAX_PACKET_SIZE 32    /* Endpoint IN & OUT Packet size */
 #endif
+#ifdef BOARD_SCUT_candleLightFD
+#define USB_CAN_CONFIG_DESC_SIZ	 116
+#define CDC_FUNCTION_STR_INDEX			0xD0
+#define CDC_CMD_INTERFACE_STR_INDEX		0xD1
+#define CDC_DATA_INTERFACE_STR_INDEX	0xD2
+#else
 #define USB_CAN_CONFIG_DESC_SIZ	 50
+#endif
 #define USBD_GS_CAN_VENDOR_CODE	 0x20
 #define DFU_INTERFACE_NUM		 1
 #define DFU_INTERFACE_STR_INDEX	 0xE0

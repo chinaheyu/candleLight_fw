@@ -55,11 +55,19 @@ static const uint8_t USBD_GS_CAN_CfgDesc[USB_CAN_CONFIG_DESC_SIZ] =
 	USB_DESC_TYPE_CONFIGURATION,      /* bDescriptorType */
 	USB_CAN_CONFIG_DESC_SIZ,          /* wTotalLength */
 	0x00,
+#ifdef BOARD_SCUT_candleLightFD
+	0x04,                             /* bNumInterfaces */
+#else
 	0x02,                             /* bNumInterfaces */
+#endif
 	0x01,                             /* bConfigurationValue */
 	USBD_IDX_CONFIG_STR,              /* iConfiguration */
 	0x80,                             /* bmAttributes */
+#ifdef BOARD_SCUT_candleLightFD
+	0xFA,							 /* bMaxPower 500 mA */
+#else
 	0x4B,                             /* MaxPower 150 mA */
+#endif
 	/*---------------------------------------------------------------------------*/
 
 	/*---------------------------------------------------------------------------*/
@@ -120,6 +128,95 @@ static const uint8_t USBD_GS_CAN_CfgDesc[USB_CAN_CONFIG_DESC_SIZ] =
 	0x00, 0x08,                       /* wTransferSize */
 	0x1a, 0x01,                       /* bcdDFUVersion: 1.1a */
 
+#ifdef BOARD_SCUT_candleLightFD
+	/******** IAD to associate the two CDC interfaces */
+	0x08,             /* bLength */
+	0x0B,             /* bDescriptorType */
+	0x02, /* bFirstInterface */
+	0x02,             /* bInterfaceCount */
+	0x02,             /* bFunctionClass */
+	0x02,             /* bFunctionSubClass */
+	0x01,             /* bFunctionProtocol */
+	CDC_FUNCTION_STR_INDEX,             /* iFunction (Index of string descriptor describing this function) */
+
+	/*Interface Descriptor */
+	0x09,   /* bLength: Interface Descriptor size */
+	USB_DESC_TYPE_INTERFACE,  /* bDescriptorType: Interface */
+	/* Interface descriptor type */
+	0x02,   /* bInterfaceNumber: Number of Interface */
+	0x00,   /* bAlternateSetting: Alternate setting */
+	0x01,   /* bNumEndpoints: One endpoints used */
+	0x02,   /* bInterfaceClass: Communication Interface Class */
+	0x02,   /* bInterfaceSubClass: Abstract Control Model */
+	0x01,   /* bInterfaceProtocol: Common AT commands */
+	CDC_CMD_INTERFACE_STR_INDEX,   /* iInterface: */
+
+	/*Header Functional Descriptor*/
+	0x05,   /* bLength: Endpoint Descriptor size */
+	0x24,   /* bDescriptorType: CS_INTERFACE */
+	0x00,   /* bDescriptorSubtype: Header Func Desc */
+	0x10,   /* bcdCDC: spec release number */
+	0x01,
+
+	/*Call Management Functional Descriptor*/
+	0x05,   /* bFunctionLength */
+	0x24,   /* bDescriptorType: CS_INTERFACE */
+	0x01,   /* bDescriptorSubtype: Call Management Func Desc */
+	0x00,   /* bmCapabilities: D0+D1 */
+	0x01,   /* bDataInterface: 1 */
+
+	/*ACM Functional Descriptor*/
+	0x04,   /* bFunctionLength */
+	0x24,   /* bDescriptorType: CS_INTERFACE */
+	0x02,   /* bDescriptorSubtype: Abstract Control Management desc */
+	0x02,   /* bmCapabilities */
+
+	/*Union Functional Descriptor*/
+	0x05,   /* bFunctionLength */
+	0x24,   /* bDescriptorType: CS_INTERFACE */
+	0x06,   /* bDescriptorSubtype: Union func desc */
+	0x02,   /* bMasterInterface: Communication class interface */
+	0x03,   /* bSlaveInterface0: Data Class Interface */
+
+	/*Endpoint 2 Descriptor*/
+	0x07,                           /* bLength: Endpoint Descriptor size */
+	USB_DESC_TYPE_ENDPOINT,   /* bDescriptorType: Endpoint */
+	GSUSB_CDC_ENDPOINT_CMD,                     /* bEndpointAddress */
+	0x03,                           /* bmAttributes: Interrupt */
+	LOBYTE(8U),     /* wMaxPacketSize: */
+	HIBYTE(8U),
+	0x10U,                           /* bInterval: */
+	/*---------------------------------------------------------------------------*/
+
+	/*Data class interface descriptor*/
+	0x09,   /* bLength: Endpoint Descriptor size */
+	USB_DESC_TYPE_INTERFACE,  /* bDescriptorType: */
+	0x03,   /* bInterfaceNumber: Number of Interface */
+	0x00,   /* bAlternateSetting: Alternate setting */
+	0x02,   /* bNumEndpoints: Two endpoints used */
+	0x0A,   /* bInterfaceClass: CDC */
+	0x00,   /* bInterfaceSubClass: */
+	0x00,   /* bInterfaceProtocol: */
+	CDC_DATA_INTERFACE_STR_INDEX,   /* iInterface: */
+
+	/*Endpoint OUT Descriptor*/
+	0x07,   /* bLength: Endpoint Descriptor size */
+	USB_DESC_TYPE_ENDPOINT,      /* bDescriptorType: Endpoint */
+	GSUSB_CDC_ENDPOINT_OUT,                        /* bEndpointAddress */
+	0x02,                              /* bmAttributes: Bulk */
+	LOBYTE(64U),  /* wMaxPacketSize: */
+	HIBYTE(64U),
+	0x00,                              /* bInterval: ignore for Bulk transfer */
+
+	/*Endpoint IN Descriptor*/
+	0x07,   /* bLength: Endpoint Descriptor size */
+	USB_DESC_TYPE_ENDPOINT,      /* bDescriptorType: Endpoint */
+	GSUSB_CDC_ENDPOINT_IN,                         /* bEndpointAddress */
+	0x02,                              /* bmAttributes: Bulk */
+	LOBYTE(64U),  /* wMaxPacketSize: */
+	HIBYTE(64U),
+	0x00                               /* bInterval: ignore for Bulk transfer */
+#endif
 };
 
 /* Microsoft OS String Descriptor */
@@ -777,6 +874,17 @@ uint8_t *USBD_GS_CAN_GetStrDesc(USBD_HandleTypeDef *pdev, uint8_t index, uint16_
 	UNUSED(pdev);
 
 	switch (index) {
+#ifdef BOARD_SCUT_candleLightFD
+		case CDC_FUNCTION_STR_INDEX:
+			USBD_GetString((uint8_t *)"serial port", USBD_DescBuf, length);
+			return USBD_DescBuf;
+		case CDC_CMD_INTERFACE_STR_INDEX:
+			USBD_GetString((uint8_t *)"serial port command interface", USBD_DescBuf, length);
+			return USBD_DescBuf;
+		case CDC_DATA_INTERFACE_STR_INDEX:
+			USBD_GetString((uint8_t *)"serial port data interface", USBD_DescBuf, length);
+			return USBD_DescBuf;
+#endif
 		case DFU_INTERFACE_STR_INDEX:
 			USBD_GetString(DFU_INTERFACE_STRING_FS, USBD_DescBuf, length);
 			return USBD_DescBuf;
@@ -791,6 +899,70 @@ uint8_t *USBD_GS_CAN_GetStrDesc(USBD_HandleTypeDef *pdev, uint8_t index, uint16_
 	}
 }
 
+#ifdef BOARD_SCUT_candleLightFD
+extern uint8_t  USBD_CDC_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx);
+extern uint8_t  USBD_CDC_DeInit(USBD_HandleTypeDef *pdev, uint8_t cfgidx);
+extern uint8_t  USBD_CDC_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
+extern uint8_t  USBD_CDC_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum);
+extern uint8_t  USBD_CDC_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum);
+extern uint8_t  USBD_CDC_EP0_RxReady(USBD_HandleTypeDef *pdev);
+
+static uint8_t USBD_Init_Dispatch(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
+{
+	USBD_GS_CAN_Start(pdev, cfgidx);
+	USBD_CDC_Init(pdev, cfgidx);
+	return USBD_OK;
+}
+
+static uint8_t USBD_DeInit_Dispatch(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
+{
+	USBD_GS_CAN_DeInit(pdev, cfgidx);
+	USBD_CDC_DeInit(pdev, cfgidx);
+	return USBD_OK;
+}
+
+static uint8_t USBD_Setup_Dispatch(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
+{
+	if (LOBYTE(req->wIndex) == 2 || LOBYTE(req->wIndex) == 3)
+		return USBD_CDC_Setup(pdev, req);
+	return USBD_GS_CAN_Setup(pdev, req);
+}
+
+static uint8_t USBD_EP0_RxReady_Dispatch(USBD_HandleTypeDef *pdev)
+{
+	if (LOBYTE(pdev->request.wIndex) == 2 || LOBYTE(pdev->request.wIndex) == 3)
+		return USBD_CDC_EP0_RxReady(pdev);
+	return USBD_GS_CAN_EP0_RxReady(pdev);
+}
+
+static uint8_t USBD_DataIn_Dispatch(USBD_HandleTypeDef *pdev, uint8_t epnum)
+{
+	if (epnum == (GSUSB_CDC_ENDPOINT_IN & 0x7F) || epnum == (GSUSB_CDC_ENDPOINT_CMD & 0x7F))
+		return USBD_CDC_DataIn(pdev, epnum);
+	return USBD_GS_CAN_DataIn(pdev, epnum);
+}
+
+static uint8_t USBD_DataOut_Dispatch(USBD_HandleTypeDef *pdev, uint8_t epnum)
+{
+	if (epnum == GSUSB_CDC_ENDPOINT_OUT)
+		return USBD_CDC_DataOut(pdev, epnum);
+	return USBD_GS_CAN_DataOut(pdev, epnum);
+}
+
+USBD_ClassTypeDef USBD_GS_CAN = {
+	.Init = USBD_Init_Dispatch,
+	.DeInit = USBD_DeInit_Dispatch,
+	.Setup = USBD_Setup_Dispatch,
+	.EP0_RxReady = USBD_EP0_RxReady_Dispatch,
+	.DataIn = USBD_DataIn_Dispatch,
+	.DataOut = USBD_DataOut_Dispatch,
+	.SOF = NULL,
+	.GetHSConfigDescriptor = USBD_GS_CAN_GetCfgDesc,
+	.GetFSConfigDescriptor = USBD_GS_CAN_GetCfgDesc,
+	.GetOtherSpeedConfigDescriptor = USBD_GS_CAN_GetCfgDesc,
+	.GetUsrStrDescriptor = USBD_GS_CAN_GetStrDesc,
+};
+#else
 /* CAN interface class callbacks structure */
 USBD_ClassTypeDef USBD_GS_CAN = {
 	.Init = USBD_GS_CAN_Start,
@@ -805,6 +977,7 @@ USBD_ClassTypeDef USBD_GS_CAN = {
 	.GetOtherSpeedConfigDescriptor = USBD_GS_CAN_GetCfgDesc,
 	.GetUsrStrDescriptor = USBD_GS_CAN_GetStrDesc,
 };
+#endif
 
 uint8_t USBD_GS_CAN_Init(USBD_GS_CAN_HandleTypeDef *hcan, USBD_HandleTypeDef *pdev)
 {

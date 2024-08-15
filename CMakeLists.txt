@@ -288,6 +288,9 @@ function(add_g431_target TGTNAME)
 		target_link_options(${TGTNAME}_fw BEFORE PRIVATE ${CPUFLAGS_G4})
 		target_link_libraries(${TGTNAME}_fw PRIVATE STM32_HAL_SCUT_candleLightFD STM32_USB_Device_Library_SCUT_candleLightFD)
 
+		# USB CDC
+		target_sources(${TGTNAME}_fw PRIVATE "src/usbd_cdc.c")
+
 		# export compile_commands.json for SCUT_candleLightFD
 		set_target_properties(${TGTNAME}_fw PROPERTIES EXPORT_COMPILE_COMMANDS ON)
 	else()

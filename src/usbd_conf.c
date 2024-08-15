@@ -80,13 +80,13 @@ void HAL_PCD_SetupStageCallback(PCD_HandleTypeDef *hpcd)
 
 	bool request_was_handled = false;
 
-	if ((pdev->request.bmRequest & 0x1F) == USB_REQ_RECIPIENT_DEVICE ) { // device request
-		request_was_handled = USBD_GS_CAN_CustomDeviceRequest(pdev, &pdev->request);
-	}
+		if ((pdev->request.bmRequest & 0x1F) == USB_REQ_RECIPIENT_DEVICE ) { // device request
+			request_was_handled = USBD_GS_CAN_CustomDeviceRequest(pdev, &pdev->request);
+		}
 
-	if ((pdev->request.bmRequest & 0x1F) == USB_REQ_RECIPIENT_INTERFACE ) { // interface request
-		request_was_handled = USBD_GS_CAN_CustomInterfaceRequest(pdev, &pdev->request);
-	}
+		if ((pdev->request.bmRequest & 0x1F) == USB_REQ_RECIPIENT_INTERFACE ) { // interface request
+			request_was_handled = USBD_GS_CAN_CustomInterfaceRequest(pdev, &pdev->request);
+		}
 
 	if (!request_was_handled) {
 		USBD_LL_SetupStage((USBD_HandleTypeDef*)hpcd->pData, (uint8_t *)hpcd->Setup);
@@ -136,7 +136,11 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
 	hpcd_USB_FS.Instance = USB_INTERFACE;
 
 	// Common to all devices
+#ifdef BOARD_SCUT_candleLightFD
+	hpcd_USB_FS.Init.dev_endpoints = 8U;
+#else
 	hpcd_USB_FS.Init.dev_endpoints = 5U;
+#endif
 	hpcd_USB_FS.Init.speed = PCD_SPEED_FULL;
 	hpcd_USB_FS.Init.ep0_mps = EP_MPS_64;
 	hpcd_USB_FS.Init.phy_itface = PCD_PHY_EMBEDDED;
@@ -164,6 +168,16 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
 #endif
 
 	HAL_PCD_Init(&hpcd_USB_FS);
+
+#ifdef BOARD_SCUT_candleLightFD
+	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData, 0x00, PCD_SNG_BUF, 0x40);
+	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData, 0x80, PCD_SNG_BUF, 0x80);
+	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData, 0x81, PCD_SNG_BUF, 0xC0);
+	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData, 0x02, PCD_SNG_BUF, 0x100);
+	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x82 , PCD_SNG_BUF, 0x140);
+	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x03 , PCD_SNG_BUF, 0x190);
+	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x83 , PCD_SNG_BUF, 0x180);
+#else
 	/*
 	* PMA layout
 	*  0x00 -  0x17 (24 bytes) metadata?
@@ -190,6 +204,7 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
 	HAL_PCDEx_SetRxFiFo((PCD_HandleTypeDef*)pdev->pData, USB_RX_FIFO_SIZE); // shared RX FIFO
 	HAL_PCDEx_SetTxFiFo((PCD_HandleTypeDef*)pdev->pData, 0U, 64U / 4U);     // 0x80, 64 bytes (div by 4 for words)
 	HAL_PCDEx_SetTxFiFo((PCD_HandleTypeDef*)pdev->pData, 1U, 64U / 4U);     // 0x81, 64 bytes (div by 4 for words)
+#endif
 #endif
 
 	return USBD_OK;

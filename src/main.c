@@ -47,7 +47,7 @@ THE SOFTWARE.
 #include "util.h"
 
 static USBD_GS_CAN_HandleTypeDef hGS_CAN;
-static USBD_HandleTypeDef hUSB = {0};
+USBD_HandleTypeDef hUSB = {0};
 
 static void DisableUSBSOFInterrupt(USBD_HandleTypeDef *pdev)
 {
