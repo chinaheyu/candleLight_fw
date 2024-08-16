@@ -49,7 +49,11 @@ THE SOFTWARE.
 #define USBD_VID					 0x1d50
 #define USBD_PID_FS					 0x606f
 #define USBD_LANGID_STRING			 1033
+#ifdef BOARD_SCUT_candleLightFD
+#define USBD_CONFIGURATION_STRING_FS (uint8_t*) "gs_usb config"
+#else
 #define USBD_CONFIGURATION_STRING_FS (uint8_t*) GIT_HASH
+#endif
 #define USBD_INTERFACE_STRING_FS	 (uint8_t*) "gs_usb interface"
 
 #if defined(BOARD_candleLight)
