@@ -42,8 +42,8 @@ THE SOFTWARE.
 #define LEDTX_Mode		  GPIO_MODE_OUTPUT_OD
 #define LEDTX_Active_High 0
 
-#define CAN_TERM_Pin GPIO_PIN_3
-#define CAN_TERM_GPIO_Port GPIOA
+#define CAN_TERM_Pin GPIO_PIN_7
+#define CAN_TERM_GPIO_Port GPIOB
 
 #define CAN_EN_Pin GPIO_PIN_4
 #define CAN_EN_GPIO_Port GPIOA
@@ -60,13 +60,19 @@ static void SCUT_candleLightFD_setup(USBD_GS_CAN_HandleTypeDef *hcan)
 
 	/* GPIOs */
 
-	HAL_GPIO_WritePin(GPIOA, CAN_TERM_Pin|CAN_EN_Pin|LEDTX_Pin|LEDRX_Pin, GPIO_PIN_RESET);
-	GPIO_InitStruct.Pin = CAN_TERM_Pin|CAN_EN_Pin|LEDTX_Pin|LEDRX_Pin;
+	HAL_GPIO_WritePin(GPIOA, CAN_EN_Pin|LEDTX_Pin|LEDRX_Pin, GPIO_PIN_RESET);
+	GPIO_InitStruct.Pin = CAN_EN_Pin|LEDTX_Pin|LEDRX_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+	HAL_GPIO_WritePin(CAN_TERM_GPIO_Port, CAN_TERM_Pin, GPIO_PIN_RESET);
+	GPIO_InitStruct.Pin = CAN_TERM_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(CAN_TERM_GPIO_Port, &GPIO_InitStruct);
 	/* FDCAN */
 
 	RCC_PeriphCLKInitTypeDef PeriphClkInit = {
